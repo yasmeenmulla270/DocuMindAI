@@ -252,12 +252,12 @@ def init_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "ingested_files" not in st.session_state:
-        # Restore from disk so a page refresh doesn't lose context,
-        # but only mark as "previously indexed" — not a specific filename.
         if has_documents():
             st.session_state.ingested_files = ["Previously indexed document(s)"]
         else:
             st.session_state.ingested_files = []
+    if "uploader_key" not in st.session_state:
+        st.session_state.uploader_key = 0
 
 
 def render_sidebar():
@@ -276,6 +276,7 @@ def render_sidebar():
             type=["pdf"],
             help="Your PDF will be split into chunks, embedded, and stored locally.",
             label_visibility="collapsed",
+            key=f"uploader_{st.session_state.uploader_key}",
         )
 
         if uploaded is not None and uploaded.name not in st.session_state.ingested_files:
@@ -297,6 +298,7 @@ def render_sidebar():
             clear_database()
             st.session_state.ingested_files = []
             st.session_state.messages = []
+            st.session_state.uploader_key += 1
             st.rerun()
 
         st.markdown('<div class="sidebar-footer">Built with ❤️ using LangChain · FAISS · Groq</div>', unsafe_allow_html=True)
